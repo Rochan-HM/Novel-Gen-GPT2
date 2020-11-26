@@ -1,7 +1,5 @@
 import random
 import re
-import urllib
-from random import randint
 import torch
 from transformers import pipeline, set_seed
 from transformers.pipelines import TextGenerationPipeline, Pipeline
