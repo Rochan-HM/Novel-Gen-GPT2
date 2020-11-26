@@ -31,6 +31,14 @@ def main():
     state.sync()
 
 
+def filter_content(text):
+    text = re.sub(r"http\S+", "", text)  # remove urls
+    text = re.sub(r'\S+\.com\S+', '', text)  # remove urls
+    text = re.sub(r'\@\w+', '', text)  # remove mentions
+    text = re.sub(r'\#\w+', '', text)  # remove hashtags
+    return text
+
+
 def load_page(state: _SessionState, model: TextGenerationPipeline):
     st.title("Story Generator")
 
@@ -61,20 +69,17 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             # But we dont use all tweets
             inp_split = tweety.get_tweets(state.input, (state.slider // 1048) + 1)
             print((state.slider // 1048) + 1)
-            inp_split = list(map(lambda x: re.sub(
-                r"""(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*""",
-                ' ', x), inp_split))
-            inp_split = list(map(lambda x: re.sub(r'\W+', ' ', x), inp_split))
+            for each in inp_split:
+                st.sidebar.markdown(f"{each}\n")
+            inp_split = list(map(lambda x: filter_content(x), inp_split))
         except:
-            st.error("Sorry! Twitter is having issues. But we will use some madeup tweets instead")
-            inp_split = ["CS3600 is such a cool class"]
+            st.error("Sorry! Twitter is having issues.")
+            st.stop()
 
         i = 0
 
         st.sidebar.markdown("# Here are your tweets!\n### Now read them while "
                             " GPT2 generates some content...\n")
-        for each in inp_split:
-            st.sidebar.markdown(f"{each}\n")
 
         progressbar = st.progress(total_words)
 
@@ -100,6 +105,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
                     i += 1
 
     print("Done")
+    progressbar.empty()
 
     st.markdown(
         '<h2 style="font-family:Courier;text-align:center;">Your Story</h2>',
@@ -113,7 +119,6 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             unsafe_allow_html=True,
         )
     st.markdown("## Total Words: " + str(len(total_str)))
-
 
 
 if __name__ == "__main__":
