@@ -32,11 +32,13 @@ def main():
 
 
 def filter_content(text):
-    text = text.strip()
+    text = re.sub(r"""(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*""", ' ', text)
     text = re.sub(r"http\S+", "", text)  # remove urls
     text = re.sub(r'\S+\.com\S+', '', text)  # remove urls
     text = re.sub(r'\@\w+', '', text)  # remove mentions
     text = re.sub(r'\#\w+', '', text)  # remove hashtags
+    text = re.sub(r'\W+', ' ', text)
+    text = text.strip()
     return text
 
 
