@@ -104,6 +104,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             f'<p style="font-family:Courier;text-align:center;">{line}</p>',
             unsafe_allow_html=True,
         )
+    st.markdown("## Total Words: " + len(total_str))
 
 
 if __name__ == "__main__":
