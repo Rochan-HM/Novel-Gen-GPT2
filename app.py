@@ -75,6 +75,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
         except:
             st.error("Sorry! Twitter is having issues.")
             st.stop()
+            inp_split = ["CS3600 is such a good class!"]
 
         i = 0
 
@@ -104,8 +105,10 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
                 else:
                     i += 1
 
+                if total_words >= state.slider:
+                    progressbar.empty()
+
     print("Done")
-    progressbar.empty()
 
     st.markdown(
         '<h2 style="font-family:Courier;text-align:center;">Your Story</h2>',
