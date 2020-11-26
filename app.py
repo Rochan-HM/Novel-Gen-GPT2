@@ -112,10 +112,6 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             f'<p style="font-family:Courier;text-align:center;">{line}</p>',
             unsafe_allow_html=True,
         )
-    st.markdown("## Total Words: " + str(len(total_str)))
-    if st.button('Download'):
-        tmp_download_link = download_link(total_str, 'Novel.txt', 'Click here!')
-        st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
