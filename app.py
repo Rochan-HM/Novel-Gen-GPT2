@@ -59,7 +59,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             inp_split = list(map(lambda x: re.sub(r'\W+', ' ', x), inp_split))
         except:
             st.error("Sorry! Twitter is having issues. But we will use some madeup tweets instead")
-            inp_split = "CS3600 is such a cool class"
+            inp_split = ["CS3600 is such a cool class"]
 
         i = 0
 
