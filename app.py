@@ -6,8 +6,16 @@ from transformers.pipelines import TextGenerationPipeline, Pipeline
 import streamlit as st
 from SessionState import _SessionState, _get_session, _get_state
 import tweety
+import base64
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+def download_link(object_to_download, download_filename, download_link_text):
+    # some strings <-> bytes conversions necessary. Taken from streamlit forums
+    b64 = base64.b64encode(object_to_download.encode()).decode()
+
+    return f'<a href="data:file/txt;base64,{b64}" download="{download_filename}">{download_link_text}</a>'
 
 
 @st.cache(allow_output_mutation=True, suppress_st_warning=True)
@@ -28,22 +36,23 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
 
     state.input = st.text_input(
         "Enter a Twitter Search term",
-        value="#ArtificialIntelligence"
+        value="Artificial Intelligence"
     )
 
     set_seed(random.randint(0, 100))
 
     state.slider = st.slider(
-        "Story Length",
-        10000,
-        50000,
-        20000,
-        step=1000
+        "Minimum Story Length",
+        10_000,
+        50_000,
+        20_000,
+        step=10_000
     )
 
     button_generate = st.button("Generate Story")
 
     total_str = ""
+    total_words = 0
 
     if button_generate:
         total_words = 0
@@ -51,6 +60,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             # This only supports max of 1024. So get enough tweets
             # But we dont use all tweets
             inp_split = tweety.get_tweets(state.input, (state.slider // 1048) + 1)
+            print((state.slider // 1048) + 1)
             inp_split = list(map(lambda x: re.sub(
                 r"""(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*""",
                 ' ', x), inp_split))
@@ -61,12 +71,14 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
 
         i = 0
 
-        st.sidebar.markdown("# Here are your tweets:\n### Now read them while "
-                            " GPT2 generates some content.....\n")
+        st.sidebar.markdown("# Here are your tweets!\n### Now read them while "
+                            " GPT2 generates some content...\n")
         for each in inp_split:
             st.sidebar.markdown(f"{each}\n")
 
-        with st.spinner('AI Thinking in Progress... 🤔'):
+        progressbar = st.progress(total_words)
+
+        with st.spinner('AI Thinking in Progress. This might take 10 - 15 minutes... 🤔'):
             while state.slider - total_words >= 0:
                 outputs = model(
                     inp_split[i],
@@ -76,6 +88,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
                     top_p=0.95,
                     num_return_sequences=1,
                 )
+                progressbar.progress(total_words / state.slider)
                 print(outputs)
                 output_text = outputs[0]["generated_text"]
                 total_str += output_text + "\n"
@@ -87,8 +100,6 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
                     i += 1
 
     print("Done")
-
-    # st.balloons()
 
     st.markdown(
         '<h2 style="font-family:Courier;text-align:center;">Your Story</h2>',
@@ -102,6 +113,9 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             unsafe_allow_html=True,
         )
     st.markdown("## Total Words: " + str(len(total_str)))
+    if st.button('Download'):
+        tmp_download_link = download_link(total_str, 'Novel.txt', 'Click here!')
+        st.markdown(tmp_download_link, unsafe_allow_html=True)
 
 
 if __name__ == "__main__":
