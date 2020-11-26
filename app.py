@@ -32,6 +32,7 @@ def main():
 
 
 def filter_content(text):
+    text = text.strip()
     text = re.sub(r"http\S+", "", text)  # remove urls
     text = re.sub(r'\S+\.com\S+', '', text)  # remove urls
     text = re.sub(r'\@\w+', '', text)  # remove mentions
