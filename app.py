@@ -101,7 +101,7 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
                 print(outputs)
                 output_text = outputs[0]["generated_text"]
                 total_str += output_text + "\n"
-                total_words = len(total_str)
+                total_words = len(total_str.split())
                 print(total_words)
                 if i == len(inp_split) - 1:
                     i = 0
