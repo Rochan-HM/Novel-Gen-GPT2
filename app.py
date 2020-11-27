@@ -72,6 +72,8 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             # But we dont use all tweets
             inp_split = tweety.get_tweets(state.input, (state.slider // 1048) + 1)
             print((state.slider // 1048) + 1)
+            st.sidebar.markdown("# Here are your tweets!\n### Now read them while "
+                            " GPT2 generates some content...\n")
             for each in inp_split:
                 st.sidebar.markdown(f"{each}\n")
             inp_split = list(map(lambda x: filter_content(x), inp_split))
@@ -81,9 +83,6 @@ def load_page(state: _SessionState, model: TextGenerationPipeline):
             inp_split = ["CS3600 is such a good class!"]
 
         i = 0
-
-        st.sidebar.markdown("# Here are your tweets!\n### Now read them while "
-                            " GPT2 generates some content...\n")
 
         progressbar = st.progress(total_words)
 
